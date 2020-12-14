@@ -1,0 +1,6 @@
+# User-specific data
+config.json
+*-archive
+
+# IDE-specific data
+.idea

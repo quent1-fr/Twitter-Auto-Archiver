@@ -1,0 +1,16 @@
+{
+  "app": {
+    "api-key": "",
+    "api-secret": ""
+  },
+  "account": {
+    "access-token": "",
+    "access-token-secret": ""
+  },
+  "tweets": {
+    "maximum-age": "2 months"
+  },
+  "likes": {
+    "maximum-age": "1 week"
+  }
+}
