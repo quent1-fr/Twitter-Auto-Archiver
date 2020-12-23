@@ -20,8 +20,15 @@ class TwitterArchiveHelper:
 
         with open('tweets-archive/data/tweet.js', encoding='utf8') as archivedTweets:
             print('Opening tweet.js file')
+
+            # Get archived tweets JSON
             archivedTweets = archivedTweets.read().lstrip('window.YTD.tweet.part0 = ')
+
+            # Parse JSON
             self.archivedTweets = json.loads(archivedTweets)
+
+            # Generate a list of archived tweets IDs
+            self.archivedTweetsIDs = self.getArchivedTweetsIDs()
 
     # Open tweets.js from memory
     def saveTweetsFile(self):
@@ -34,21 +41,19 @@ class TwitterArchiveHelper:
             print('Saving updated tweet.js file')
             archivedTweetsFile.write('window.YTD.tweet.part0 = ' + json.dumps(self.archivedTweets))
 
-    # Get newest archived tweet ID
-    def getNewestArchivedTweetID(self):
-        targetedTweetID = None
-        targetedTweetDate = None
+    # Extract all archived tweets IDs
+    def getArchivedTweetsIDs(self):
+        archivedTweetsIDs = []
 
         # For each archived tweet
         for archivedTweet in self.archivedTweets:
+            archivedTweetsIDs.append(archivedTweet['tweet']['id_str'])
 
-            # Check if it is more recent than the current one
-            archivedTweetDateTime = TweetHelper.tweetDateTimeToPythonDateTime(archivedTweet['tweet']['created_at'])
-            if targetedTweetDate == None or archivedTweetDateTime > targetedTweetDate:
-                targetedTweetID = archivedTweet['tweet']['id_str']
-                targetedTweetDate = archivedTweetDateTime
+        return archivedTweetsIDs
 
-        return targetedTweetID
+    # Check if a tweet is archived
+    def checkIfTweetIsArchived(self, tweetID):
+        return tweetID in self.archivedTweetsIDs
 
     # Archive a tweet
     def archiveTweet(self, tweet):
@@ -56,9 +61,15 @@ class TwitterArchiveHelper:
         # Transform a raw tweet into an ArchivedTweet
         ArchivedTweet = ArchivedTweetEntity(tweet)
 
+        # If tweet is already archived, skip it
+        if self.checkIfTweetIsArchived(ArchivedTweet.id_str):
+            print('Tweet ' + ArchivedTweet.id_str + ' is already archived, skipping it')
+            return ArchivedTweet
+
         # Add tweet to list of archived tweets
         print('Archiving tweet ' + ArchivedTweet.id_str)
         self.archivedTweets.append({ 'tweet': ArchivedTweet.getDict() })
+        self.archivedTweetsIDs.append(ArchivedTweet.id_str)
 
         # Force download of all media
         ArchivedTweet.downloadMedia('tweets-archive/data/tweet_media')

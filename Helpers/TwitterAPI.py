@@ -38,8 +38,8 @@ class TwitterAPIHelper:
             tweet_mode='extended'
         )
 
-    # Get complete tweets older than a certain age and newer than a specific tweet ID
-    def getTweets(self, notAfterDateTime, notBeforeTweetId):
+    # Get complete tweets older than a certain age
+    def getTweets(self, notAfterDateTime):
         formattedTweets = []
         maxTweetId = None
 
@@ -47,7 +47,7 @@ class TwitterAPIHelper:
         while True:
 
             # Get some more tweets
-            rawTweets = self.TwitterAPIConnectionInstance.GetUserTimeline(max_id = maxTweetId, since_id = notBeforeTweetId, include_rts = True, exclude_replies = False, count = self.tweetsPerAPICall)
+            rawTweets = self.TwitterAPIConnectionInstance.GetUserTimeline(max_id = maxTweetId, include_rts = True, exclude_replies = False, count = self.tweetsPerAPICall)
 
             # If there is no tweets, stop here
             if (maxTweetId is None and len(rawTweets) < 1) or (maxTweetId is not None and len(rawTweets) < 2):
@@ -62,7 +62,7 @@ class TwitterAPIHelper:
                 # Update latest read tweet
                 maxTweetId = tweet.id_str
 
-                # If tweet is too young, ignore it
+                # If tweet is too new, ignore it
                 if TweetHelper.tweetDateTimeToPythonDateTime(tweet.created_at) > notAfterDateTime:
                     continue
 

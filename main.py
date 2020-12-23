@@ -6,9 +6,6 @@ from Helpers.TwitterArchive import TwitterArchiveHelper
 
 if __name__ == '__main__':
 
-    # Set locale to en_us
-    locale.setlocale(locale.LC_ALL, 'en_US')
-
     # Open settings
     SettingsInstance = SettingsHelper()
     settings = SettingsInstance.getAll()
@@ -24,11 +21,8 @@ if __name__ == '__main__':
     # Open Twitter Archive
     TwitterArchiveInstance = TwitterArchiveHelper()
 
-    # Get most recent archived tweet ID
-    getNewestArchivedTweetID = TwitterArchiveInstance.getNewestArchivedTweetID()
-
     # Read tweets to archive
-    tweetsToArchive = TwitterAPIInstance.getTweets(SettingsInstance.parseDate(settings['tweets']['maximum-age']), getNewestArchivedTweetID)
+    tweetsToArchive = TwitterAPIInstance.getTweets(SettingsInstance.parseDate(settings['tweets']['maximum-age']))
 
     # Tweets to delete
     tweetsToDelete = []
